@@ -1,6 +1,21 @@
-import { Expense } from "./types";
+import { Expense, Budget } from "./types";
 
 const STORAGE_KEY = "expenses";
+const BUDGET_KEY = "monthly_budget";
+
+export const getBudget = (): Budget | null => {
+  if (typeof window === "undefined") return null;
+  const data = localStorage.getItem(BUDGET_KEY);
+  return data ? JSON.parse(data) : null;
+};
+
+export const setBudget = (budget: Budget) => {
+  localStorage.setItem(BUDGET_KEY, JSON.stringify(budget));
+};
+
+export const clearBudget = () => {
+  localStorage.removeItem(BUDGET_KEY);
+};
 
 export const getExpenses = (): Expense[] => {
   if (typeof window === "undefined") return [];

@@ -15,7 +15,7 @@ export default function Chart({ data }: Props) {
   const values = Object.values(data);
 
   return (
-    <Box w={["100%", "50%"]}>
+    <Box w={{ base: "100%", md: "400px" }} mx="auto" my={6}>
       <Pie
         data={{
           labels,

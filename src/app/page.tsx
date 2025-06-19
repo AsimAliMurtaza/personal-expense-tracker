@@ -26,6 +26,7 @@ export default function HomePage() {
           <Button colorScheme="teal">Add New Expense</Button>
         </Link>
       </Flex>
+      {/* <BudgetForm /> */}
       <Summary expenses={expenses} />
       <ExpenseList expenses={expenses} onUpdate={setExpenses} />
     </Box>
