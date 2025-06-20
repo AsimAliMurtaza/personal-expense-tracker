@@ -10,6 +10,11 @@ import {
   Textarea,
   VStack,
   useToast,
+  Heading,
+  Card,
+  CardBody,
+  Flex,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { Expense } from "@/lib/types";
 import { useState } from "react";
@@ -26,20 +31,41 @@ interface Props {
 }
 
 export default function ExpenseForm({ initialData, isEdit }: Props) {
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [amount, setAmount] = useState(initialData?.amount || 0);
-  const [category, setCategory] = useState(initialData?.category || "Food");
-  const [date, setDate] = useState(
-    initialData?.date || new Date().toISOString().slice(0, 10)
-  );
-  const [notes, setNotes] = useState(initialData?.notes || "");
+  const [form, setForm] = useState({
+    title: initialData?.title || "",
+    amount: initialData?.amount || 0,
+    category: initialData?.category || "Food",
+    date: initialData?.date || new Date().toISOString().slice(0, 10),
+    notes: initialData?.notes || "",
+  });
+
   const toast = useToast();
   const router = useRouter();
+  const cardBg = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.100", "gray.600");
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "amount" ? Number(value) : value,
+    }));
+  };
 
   const handleSubmit = () => {
-    if (!title || !amount || amount < 0 || !date || !category) {
+    if (
+      !form.title ||
+      !form.amount ||
+      form.amount < 0 ||
+      !form.date ||
+      !form.category
+    ) {
       toast({
-        title: "Invalid input",
+        title: "Please fill all required fields",
         status: "error",
         isClosable: true,
       });
@@ -48,11 +74,7 @@ export default function ExpenseForm({ initialData, isEdit }: Props) {
 
     const newExpense: Expense = {
       id: initialData?.id || uuidv4(),
-      title,
-      amount,
-      category,
-      date,
-      notes,
+      ...form,
     };
 
     if (isEdit) {
@@ -71,55 +93,106 @@ export default function ExpenseForm({ initialData, isEdit }: Props) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      maxW="lg"
+      maxW="xl"
       mx="auto"
-      mt={6}
-      p={4}
-      borderWidth="1px"
-      rounded="md"
+      mt={8}
     >
-      <VStack spacing={4}>
-        <FormControl isRequired>
-          <FormLabel>Title</FormLabel>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-        </FormControl>
-        <FormControl isRequired>
-          <FormLabel>Amount</FormLabel>
-          <Input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
-          />
-        </FormControl>
-        <FormControl isRequired>
-          <FormLabel>Category</FormLabel>
-          <Select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+      <Card
+        bg={cardBg}
+        borderWidth="1px"
+        borderColor={borderColor}
+        borderRadius="50"
+      >
+        <CardBody p={6}>
+          <Heading
+            size="lg"
+            mb={6}
+            color={useColorModeValue("gray.800", "white")}
           >
-            <option value="Food">Food</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Transport">Transport</option>
-            <option value="Health">Health</option>
-            <option value="Other">Other</option>
-          </Select>
-        </FormControl>
-        <FormControl isRequired>
-          <FormLabel>Date</FormLabel>
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </FormControl>
-        <FormControl>
-          <FormLabel>Notes</FormLabel>
-          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
-        </FormControl>
-        <Button colorScheme="teal" width="full" onClick={handleSubmit}>
-          {isEdit ? "Update Expense" : "Add Expense"}
-        </Button>
-      </VStack>
+            {isEdit ? "Edit Expense" : "Add New Expense"}
+          </Heading>
+
+          <VStack spacing={5} align="stretch">
+            <FormControl isRequired>
+              <FormLabel>Title</FormLabel>
+              <Input
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                borderRadius="50"
+                placeholder="Expense title"
+                size="lg"
+              />
+            </FormControl>
+
+            <Flex gap={4} direction={{ base: "column", md: "row" }}>
+              <FormControl isRequired flex={1}>
+                <FormLabel>Amount</FormLabel>
+                <Input
+                  type="number"
+                  name="amount"
+                  borderRadius="50"
+                  value={form.amount}
+                  onChange={handleChange}
+                  size="lg"
+                />
+              </FormControl>
+              <FormControl isRequired flex={1}>
+                <FormLabel>Category</FormLabel>
+                <Select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  borderRadius="50"
+                  size="lg"
+                >
+                  <option value="Food">Food</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Health">Health</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Other">Other</option>
+                </Select>
+              </FormControl>
+            </Flex>
+
+            <FormControl isRequired>
+              <FormLabel>Date</FormLabel>
+              <Input
+                type="date"
+                name="date"
+                value={form.date}
+                onChange={handleChange}
+                borderRadius="50"
+                size="lg"
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Notes</FormLabel>
+              <Textarea
+                name="notes"
+                value={form.notes}
+                onChange={handleChange}
+                placeholder="Additional notes (optional)"
+                size="lg"
+                borderRadius="20"
+                rows={4}
+              />
+            </FormControl>
+
+            <Button
+              colorScheme="teal"
+              size="lg"
+              borderRadius="50"
+              onClick={handleSubmit}
+              mt={4}
+            >
+              {isEdit ? "Update Expense" : "Add Expense"}
+            </Button>
+          </VStack>
+        </CardBody>
+      </Card>
     </MotionBox>
   );
 }

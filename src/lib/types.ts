@@ -5,6 +5,7 @@ export interface Expense {
   category: string;
   date: string;
   notes?: string;
+  
 }
 
 export interface Budget {

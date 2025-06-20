@@ -33,9 +33,6 @@ export default function EditExpensePage() {
 
   return (
     <Box p={6}>
-      <Heading size="lg" mb={4}>
-        Edit Expense
-      </Heading>
       <ExpenseForm initialData={expense} isEdit />
     </Box>
   );
